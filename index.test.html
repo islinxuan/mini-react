@@ -10,15 +10,21 @@
     <script type="module">
       import miniReact from "./index.js";
 
-      const element = miniReact.createElement(
-        "div",
-        { id: "foo" },
-        "Hello ",
-        miniReact.createElement("a", { href: "https://beta.reactjs.org/", style: "color: #087ea4" }, "React")
-      );
-
       const root = document.getElementById("root");
-      miniReact.render(root, element);
+
+      const updateValue = (e) => rerender(e.target.value);
+
+      const rerender = (value) => {
+        const element = miniReact.createElement(
+          "div",
+          null,
+          miniReact.createElement("input", { type: "text", oninput: updateValue }),
+          miniReact.createElement("h2", null, `Hello ${value}`)
+        );
+        miniReact.render(root, element);
+      };
+
+      rerender("React");
     </script>
   </body>
 </html>
