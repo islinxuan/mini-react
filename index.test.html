@@ -6,7 +6,7 @@
     <title>mini React</title>
   </head>
   <body>
-    <div class="root"></div>
+    <div id="root"></div>
     <script type="module">
       import miniReact from "./index.js";
 
@@ -17,7 +17,8 @@
         miniReact.createElement("a", { href: "https://beta.reactjs.org/", style: "color: #087ea4" }, "React")
       );
 
-      console.log(element);
+      const root = document.getElementById("root");
+      miniReact.render(root, element);
     </script>
   </body>
 </html>
