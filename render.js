@@ -1,3 +1,5 @@
+import { commitRoot } from "./commit.js";
+
 function createDom(fiber) {
   const dom = fiber.type === "TEXT_ELEMENT" ? document.createTextNode("") : document.createElement(fiber.type);
 
@@ -10,12 +12,13 @@ function createDom(fiber) {
 
 // Start working on the root.
 function render(container, element) {
-  nextUnitOfWork = {
+  wipRoot = {
     dom: container,
     props: {
       children: [element],
     },
   };
+  nextUnitOfWork = wipRoot;
 }
 
 // React doesn’t use requestIdleCallback anymore.
@@ -24,6 +27,7 @@ function render(container, element) {
 // Concurrent Mode
 // ===============
 let nextUnitOfWork = null;
+let wipRoot = null;
 
 function workLoop(deadline) {
   let shouldYield = false;
@@ -31,6 +35,11 @@ function workLoop(deadline) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     shouldYield = deadline.timeRemaining() < 1;
   }
+
+  if (!nextUnitOfWork && wipRoot) {
+    commitRoot(wipRoot);
+  }
+
   requestIdleCallback(workLoop);
 }
 
@@ -40,10 +49,6 @@ function performUnitOfWork(fiber) {
   // 1. add dom node
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
-  }
-
-  if (fiber.parent) {
-    fiber.parent.dom.append(fiber.dom);
   }
 
   // 2. create new fibers
