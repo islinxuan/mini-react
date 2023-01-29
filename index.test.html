@@ -7,6 +7,17 @@
   </head>
   <body>
     <div class="root"></div>
-    <script type="module"></script>
+    <script type="module">
+      import miniReact from "./index.js";
+
+      const element = miniReact.createElement(
+        "div",
+        { id: "foo" },
+        "Hello ",
+        miniReact.createElement("a", { href: "https://beta.reactjs.org/", style: "color: #087ea4" }, "React")
+      );
+
+      console.log(element);
+    </script>
   </body>
 </html>
