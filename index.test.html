@@ -14,7 +14,12 @@
         return miniReact.createElement("h1", null, "Hello ", props.name);
       }
 
-      const element = miniReact.createElement(App, { name: "React" });
+      function Counter() {
+        const [state, setState] = miniReact.useState(0);
+        return miniReact.createElement("h1", { onclick: () => setState((prev) => prev + 1) }, `Count: ${state}`);
+      }
+
+      const element = miniReact.createElement(Counter);
 
       const root = document.getElementById("root");
       miniReact.render(root, element);
