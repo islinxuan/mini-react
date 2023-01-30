@@ -10,16 +10,29 @@ function commitRoot() {
 function commitWork(fiber) {
   if (!fiber) return;
 
-  const domParent = fiber.parent.dom;
-  if (fiber.effectTag === "PLACEMENT") {
-    domParent.append(fiber.dom);
-  } else if (fiber.effectTag === "DELETION") {
-    fiber.dom.remove();
-  } else if (fiber.effectTag === "UPDATE") {
-    updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+  let domParentFiber = fiber.parent;
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent;
   }
+  const domParent = domParentFiber.dom;
+  if (fiber.effectTag === "PLACEMENT" && fiber.dom) {
+    domParent.append(fiber.dom);
+  } else if (fiber.effectTag === "UPDATE" && fiber.dom) {
+    updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+  } else if (fiber.effectTag === "DELETION") {
+    commitDeletion(fiber);
+  }
+
   commitWork(fiber.child);
   commitWork(fiber.sibling);
+}
+
+function commitDeletion(fiber) {
+  if (fiber.dom) {
+    fiber.dom.remove();
+  } else {
+    commitDeletion(fiber.child);
+  }
 }
 
 const isEvent = (key) => key.startsWith("on");
@@ -110,14 +123,13 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop);
 
 function performUnitOfWork(fiber) {
-  // 1. add dom node
-  if (!fiber.dom) {
-    fiber.dom = createDom(fiber);
-  }
+  const isFunctionComponent = typeof fiber.type === "function";
 
-  // 2. create new fibers
-  const elements = fiber.props.children;
-  reconcileChildren(fiber, elements);
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
+  }
 
   // 3. return next unit of work
   if (fiber.child) {
@@ -130,6 +142,21 @@ function performUnitOfWork(fiber) {
     }
     nextFiber = nextFiber.parent;
   }
+}
+
+function updateFunctionComponent(fiber) {
+  const children = [fiber.type(fiber.props)];
+  reconcileChildren(fiber, children);
+}
+
+function updateHostComponent(fiber) {
+  // 1. add dom node
+  if (!fiber.dom) {
+    fiber.dom = createDom(fiber);
+  }
+
+  // 2. create new fibers
+  reconcileChildren(fiber, fiber.props.children);
 }
 
 function reconcileChildren(wipFiber, elements) {

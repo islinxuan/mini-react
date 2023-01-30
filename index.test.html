@@ -10,21 +10,14 @@
     <script type="module">
       import miniReact from "./index.js";
 
+      function App(props) {
+        return miniReact.createElement("h1", null, "Hello ", props.name);
+      }
+
+      const element = miniReact.createElement(App, { name: "React" });
+
       const root = document.getElementById("root");
-
-      const updateValue = (e) => rerender(e.target.value);
-
-      const rerender = (value) => {
-        const element = miniReact.createElement(
-          "div",
-          null,
-          miniReact.createElement("input", { type: "text", oninput: updateValue }),
-          miniReact.createElement("h2", null, `Hello ${value}`)
-        );
-        miniReact.render(root, element);
-      };
-
-      rerender("React");
+      miniReact.render(root, element);
     </script>
   </body>
 </html>
