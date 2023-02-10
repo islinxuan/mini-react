@@ -6,4 +6,4 @@ Q&A:
 
 > React doesn’t use requestIdleCallback anymore. Now it uses the scheduler package.
 
-[[译] React Hooks: 没有魔法，只是数组](https://zhuanlan.zhihu.com/p/66923924)
+[(译)React hooks：它不是一种魔法，只是一个数组——使用图表揭秘提案规则](https://juejin.cn/post/6844903721688629256)
